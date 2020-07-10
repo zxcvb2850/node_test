@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>file</title>
+</head>
+<body>
+<h2>上传本地</h2>
+<form action="/img/upload" method='post' enctype="multipart/form-data" target="hideIframe">
+    <input type="file" name="file" id="file" multiple/>
+    <input type="submit" value="上传" id="submit"/>
+</form>
+
+<h2>FTP</h2>
+<form action="/ftp/upload" method='post' enctype="multipart/form-data" target="hideIframe">
+    <input type="file" name="file" multiple/>
+    <input type="submit" value="上传"/>
+</form>
+
+<h2>七牛</h2>
+<form action="/qiniu/upload" method='post' enctype="multipart/form-data" target="hideIframe">
+    <input type="file" name="file" multiple/>
+    <input type="submit" value="上传"/>
+</form>
+
+<iframe id="myIframe" name="hideIframe" style="display:none;"></iframe>
+</body>
+</html>
