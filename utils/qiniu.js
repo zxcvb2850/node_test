@@ -30,13 +30,11 @@ qn.upload = (filePath, fileName, callback = null) => {
 
 	formUploader.putStream(uploadToken, fileName, readableStream, putExtra, (respErr, respBody, respInfo) => {
 	  if (respErr) {
-		console.log("上传失败", respErr);
 		reject(respErr);
 		callback && callback(respErr);
 		throw respErr;
 	  }
 	  if (respInfo.statusCode === 200) {
-		console.log("**res**", respBody);
 		resolve(respBody);
 		fs.unlink(filePath, (err) => {
 		  if (err) throw new Error(err);
@@ -44,9 +42,6 @@ qn.upload = (filePath, fileName, callback = null) => {
 		});
 		callback && callback(null, respBody);
 	  } else {
-		console.log("=respInfo=", respInfo);
-		console.log("=code=", respInfo.statusCode);
-		console.log("==respBody==", respBody);
 		reject(respInfo);
 		callback && callback(respInfo, respBody);
 	  }

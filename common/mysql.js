@@ -2,33 +2,51 @@ const mysql = require("mysql");
 const config = require("./config");
 const {logger} = require("../logs");
 
-const connection = mysql.createConnection({
-  host: config.mysql.host,
-  port: config.mysql.port,
-  user: config.mysql.user,
-  password: config.mysql.password,
-  database: config.mysql.database,
-});
+const connect = () => {
+  return mysql.createConnection(config.mysql);
+};
+const querySql = (sql) => {
+  const conn = connect();
+  return new Promise((resolve, reject) => {
+	try {
+	  conn.query(sql, (err, res) => {
+		if (err) {
+		  reject(err);
+		} else {
+		  resolve(res);
+		}
+	  })
+	} catch (e) {
+	  reject(e);
+	} finally {
+	  conn.end();
+	}
+  })
+};
+const insertSql = (sql, todo) => {
+  const conn = connect();
+  return new Promise(async (resolve, reject) => {
+	try {
+	  conn.query(sql, todo, (err, res) => {
+		//是否成功写入
+		if (res.affectedRows > 0) {
+		  resolve(res)
+		} else {
+		  reject(err);
+		}
+	  });
+	} catch (e) {
+	  reject(e);
+	} finally {
+	  conn.end();
+	}
+  })
+};
+const deleteSql = () => {
+};
 
-connection.connect((err) => {
-  if (err) {
-	logger.error(`mysql error connecting ${err.stack}`);
-	return;
-  }
-  logger.info(`mysql success connected as id ${connection.threadId}`);
-});
-
-//查
-const sql = `SELECT * FROM b_img_list`;
-connection.query(sql,function (err, result) {
-  if(err){
-	console.log('[SELECT ERROR] - ',err.message);
-	return;
-  }
-
-  console.log('--------------------------SELECT----------------------------');
-  console.log(result);
-  console.log('------------------------------------------------------------\n\n');
-});
-
-connection.end();
+module.exports = {
+  querySql,
+  insertSql,
+  deleteSql,
+};

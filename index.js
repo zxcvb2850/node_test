@@ -5,6 +5,7 @@ const config = require("./common/config");
 const {defaultLogger} = require("./logs");
 
 const index = require("./routers/index");
+const apiRouter = require("./routers/api");
 const imgRouter = require("./routers/img");
 const ftpRouter = require("./routers/ftp");
 const qiniuRouter = require("./routers/qiniu");
@@ -22,8 +23,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.use("/", index);
+app.use("/api", apiRouter);
 app.use("/img", imgRouter);
 app.use("/ftp", ftpRouter);
 app.use("/qiniu", qiniuRouter);
 
-app.listen(config.port, () => console.log(`listener port: ${config.port}`));
+app.listen(config.port, () => console.log(`listener port: http://localhost:${config.port}`));

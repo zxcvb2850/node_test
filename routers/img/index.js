@@ -4,6 +4,8 @@ const router = express.Router();
 const config = require("../../common/config");
 const {renameFile, uploadFiles} = require("../../utils/files");
 const {logger} = require("../../logs");
+const {sendSuccess, sendError} = require("../../utils/request");
+const {insertSql} = require("../../common/mysql");
 
 router.post("/upload", async (req, res, next) => {
   try {
@@ -15,16 +17,22 @@ router.post("/upload", async (req, res, next) => {
 	  const {path, name} = item;
 	  const fileUrl = await renameFile(path, name);
 	  if (fileUrl && fileUrl.code === 200) {
-		result.push(`/upload/${fileUrl.data}`);
+		const completeName = `/upload/${fileUrl.data}`;
+		result.push(completeName);
+
+		// 保存数据库
+		const sql = `INSERT INTO b_img_list (img,type,hash) VALUES (?,?,?)`;
+		const todo = [completeName, 1, fileUrl.data];
+		await insertSql(sql, todo);
 	  } else {
 		throw new Error({message: "文件修改失败"});
 	  }
 	}
 	logger.info(`本地 文件上传成功 ${JSON.stringify(result)}`);
-	res.send({code: 200, data: result, message: "上传成功"});
+	sendSuccess(res, {data: result.length === 1 ? result[0] : result, message: "上传成功"})
   } catch (err) {
 	logger.error(`本地 文件上传失败 ${err.message}`);
-	res.send({code: 1, data: null, message: err.message});
+	sendError(res, {message: err.message});
   }
 });
 

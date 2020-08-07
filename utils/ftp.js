@@ -8,15 +8,15 @@ const client = new FtpClient();
 
 // FTP 连接成功
 client.on("ready", () => {
-  console.log(`ftp client is ready`);
+  logger.debug(`ftp client is ready`);
 });
 // FTP 连接关闭
 client.on("close", () => {
-  console.log(`ftp client is close`);
+  logger.debug(`ftp client is close`);
 });
 // FTP 连接错误
 client.on("error", (err) => {
-  console.log(`ftp client is error`);
+  logger.debug(`ftp client is error`);
 });
 
 // 连接 FTP
