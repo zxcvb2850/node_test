@@ -3,31 +3,28 @@ const config = require("./config");
 const {logger} = require("../logs");
 
 const connect = () => {
-  return mysql.createConnection(config.mysql);
+  return mysql.createPool(config.mysql);
 };
+
+const pool = mysql.createPool(config.mysql);
 const querySql = (sql) => {
-  const conn = connect();
   return new Promise((resolve, reject) => {
-	try {
-	  conn.query(sql, (err, res) => {
+	pool.getConnection((err, connection) => {
+	  connection.query(sql, (err, rows) => {
 		if (err) {
 		  reject(err);
 		} else {
-		  resolve(res);
+		  resolve(rows);
 		}
-	  })
-	} catch (e) {
-	  reject(e);
-	} finally {
-	  conn.end();
-	}
+	  });
+	  connection.release();
+	})
   })
 };
 const insertSql = (sql, todo) => {
-  const conn = connect();
-  return new Promise(async (resolve, reject) => {
-	try {
-	  conn.query(sql, todo, (err, res) => {
+  return new Promise((resolve, reject) => {
+	pool.getConnection((err, connection) => {
+	  connection.query(sql, todo, (err, res) => {
 		//是否成功写入
 		if (res.affectedRows > 0) {
 		  resolve(res)
@@ -35,11 +32,9 @@ const insertSql = (sql, todo) => {
 		  reject(err);
 		}
 	  });
-	} catch (e) {
-	  reject(e);
-	} finally {
-	  conn.end();
-	}
+
+	  connection.release();
+	})
   })
 };
 const deleteSql = () => {

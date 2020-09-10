@@ -5,13 +5,21 @@
     "formidable": "^1.2.2",
     "ftp": "^0.3.10",
     "mysql": "^2.18.1",
-    "qiniu": "^7.3.2"
+    "next": "^9.5.1",
+    "qiniu": "^7.3.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "scripts": {
-    "start": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "next build",
+    "start": "npm run build && cross-env NODE_ENV=production node index.js"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.10.5",
+    "cross-env": "^7.0.2",
     "crypto": "^1.0.1",
+    "lodash-decorators": "^6.0.1",
     "log4js": "^6.3.0",
     "nodemon": "^2.0.4"
   }

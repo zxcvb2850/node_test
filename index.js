@@ -1,31 +1,45 @@
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+const next = require("next");
 const config = require("./common/config");
 const {defaultLogger} = require("./logs");
 
-const index = require("./routers/index");
 const apiRouter = require("./routers/api");
 const imgRouter = require("./routers/img");
 const ftpRouter = require("./routers/ftp");
 const qiniuRouter = require("./routers/qiniu");
 
-const app = express();
+const dev = process.env.NODE_ENV !== "production";
+const app = next({dev});
+const handle = app.getRequestHandler();
 
-// 添加日志
-app.use(defaultLogger);
+app.prepare()
+  .then(() => {
+	const server = express();
 
-const publicFile = path.resolve(__dirname, "public");
-app.use(express.static(publicFile));
+	// 添加日志
+	server.use(defaultLogger);
 
-app.use(bodyParser.urlencoded({extended: false}));
+	const publicFile = path.resolve(__dirname, "public");
+	server.use(express.static(publicFile));
 
-app.use(bodyParser.json());
+	server.use(bodyParser.urlencoded({extended: false}));
 
-app.use("/", index);
-app.use("/api", apiRouter);
-app.use("/img", imgRouter);
-app.use("/ftp", ftpRouter);
-app.use("/qiniu", qiniuRouter);
+	server.use(bodyParser.json());
 
-app.listen(config.port, () => console.log(`listener port: http://localhost:${config.port}`));
+	server.use("/api", apiRouter);
+	server.use("/img", imgRouter);
+	server.use("/ftp", ftpRouter);
+	server.use("/qiniu", qiniuRouter);
+
+	server.all('*', (req, res) => {
+	  return handle(req, res)
+	});
+
+	server.listen(config.port, () => console.log(`listener port: http://localhost:${config.port}`));
+  })
+  .catch(err => {
+	console.log("== server fail ==", err);
+	process.exit(1);
+  });
